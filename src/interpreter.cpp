@@ -49,20 +49,18 @@ void init_interpreter() {
     dictionary["getinterval"]   = std::function<void()>(getinterval_operation);
     dictionary["putinterval"]   = std::function<void()>(putinterval_operation);
 
-    // // Boolean and Bitwise
-    // dictionary["eq"]     = std::function<void()>(eq_operation);
-    // dictionary["ne"]     = std::function<void()>(ne_operation);
-    // dictionary["ge"]     = std::function<void()>(ge_operation);
-    // dictionary["gt"]     = std::function<void()>(gt_operation);
-    // dictionary["le"]     = std::function<void()>(le_operation);
-    // dictionary["lt"]     = std::function<void()>(lt_operation);
-
-    // dictionary["and"]    = std::function<void()>(and_operation);
-    // dictionary["or"]     = std::function<void()>(or_operation);
-    // dictionary["not"]    = std::function<void()>(not_operation);
-
-    // dictionary["true"]   = std::function<void()>(true_operation);
-    // dictionary["false"]  = std::function<void()>(false_operation);
+    // Boolean and Bitwise
+    dictionary["eq"]     = std::function<void()>(eq_operation);
+    dictionary["ne"]     = std::function<void()>(ne_operation);
+    dictionary["ge"]     = std::function<void()>(ge_operation);
+    dictionary["gt"]     = std::function<void()>(gt_operation);
+    dictionary["le"]     = std::function<void()>(le_operation);
+    dictionary["lt"]     = std::function<void()>(lt_operation);
+    dictionary["and"]    = std::function<void()>(and_operation);
+    dictionary["or"]     = std::function<void()>(or_operation);
+    dictionary["not"]    = std::function<void()>(not_operation);
+    dictionary["true"]   = std::function<void()>(true_operation);
+    dictionary["false"]  = std::function<void()>(false_operation);
 
     // // Flow control
     // dictionary["if"]     = std::function<void()>(if_operation);

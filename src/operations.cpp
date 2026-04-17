@@ -74,8 +74,12 @@ void count_operation() {
 // ================================================
 
 double to_double(const Value& v) {
-    if (std::holds_alternative<int>(v)) return std::get<int>(v);
-    if (std::holds_alternative<double>(v)) return std::get<double>(v);
+    if (std::holds_alternative<int>(v)){
+        return std::get<int>(v);
+    }
+    if (std::holds_alternative<double>(v)){
+        return std::get<double>(v);
+    }
     throw TypeMismatch("Operand must be a number");
 }
 
@@ -431,6 +435,214 @@ void putinterval_operation() {
 
     op_stack.push_back(target);
 }
+
+// ================================================
+//  Boolean and Bitwise operations
+// ================================================
+
+void eq_operation() {
+    if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    // number comparison
+    if ((std::holds_alternative<int>(a) || std::holds_alternative<double>(a)) &&
+        (std::holds_alternative<int>(b) || std::holds_alternative<double>(b))) {
+        op_stack.push_back(to_double(a) == to_double(b));
+        return;
+    }
+
+    // string comparison
+    if (std::holds_alternative<std::string>(a) &&
+        std::holds_alternative<std::string>(b)) {
+        op_stack.push_back(std::get<std::string>(a) == std::get<std::string>(b));
+        return;
+    }
+
+    // bool comparison
+    if (std::holds_alternative<bool>(a) &&
+        std::holds_alternative<bool>(b)) {
+        op_stack.push_back(std::get<bool>(a) == std::get<bool>(b));
+        return;
+    }
+
+    throw TypeMismatch("eq type mismatch");
+}
+
+void ne_operation() {
+    eq_operation();
+    Value v = op_stack.back(); op_stack.pop_back();
+    op_stack.push_back(!std::get<bool>(v));
+}
+
+void gt_operation() {
+    if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    // numbers
+    if ((std::holds_alternative<int>(a) || std::holds_alternative<double>(a)) &&
+        (std::holds_alternative<int>(b) || std::holds_alternative<double>(b))) {
+        op_stack.push_back(to_double(a) > to_double(b));
+        return;
+    }
+
+    // strings (lexicographic)
+    if (std::holds_alternative<std::string>(a) &&
+        std::holds_alternative<std::string>(b)) {
+        op_stack.push_back(std::get<std::string>(a) > std::get<std::string>(b));
+        return;
+    }
+
+    throw TypeMismatch("gt type mismatch");
+}
+
+void ge_operation() {
+    if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    if ((std::holds_alternative<int>(a) || std::holds_alternative<double>(a)) &&
+        (std::holds_alternative<int>(b) || std::holds_alternative<double>(b))) {
+        op_stack.push_back(to_double(a) >= to_double(b));
+        return;
+    }
+
+    if (std::holds_alternative<std::string>(a) &&
+        std::holds_alternative<std::string>(b)) {
+        op_stack.push_back(std::get<std::string>(a) >= std::get<std::string>(b));
+        return;
+    }
+
+    throw TypeMismatch("ge type mismatch");
+}
+
+void lt_operation() {
+    if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    if ((std::holds_alternative<int>(a) || std::holds_alternative<double>(a)) &&
+        (std::holds_alternative<int>(b) || std::holds_alternative<double>(b))) {
+        op_stack.push_back(to_double(a) < to_double(b));
+        return;
+    }
+
+    if (std::holds_alternative<std::string>(a) &&
+        std::holds_alternative<std::string>(b)) {
+        op_stack.push_back(std::get<std::string>(a) < std::get<std::string>(b));
+        return;
+    }
+
+    throw TypeMismatch("lt type mismatch");
+}
+
+void le_operation() {
+    if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    if ((std::holds_alternative<int>(a) || std::holds_alternative<double>(a)) &&
+        (std::holds_alternative<int>(b) || std::holds_alternative<double>(b))) {
+        op_stack.push_back(to_double(a) <= to_double(b));
+        return;
+    }
+
+    if (std::holds_alternative<std::string>(a) &&
+        std::holds_alternative<std::string>(b)) {
+        op_stack.push_back(std::get<std::string>(a) <= std::get<std::string>(b));
+        return;
+    }
+
+    throw TypeMismatch("le type mismatch");
+}
+
+void and_operation() {
+    if (op_stack.size() < 2) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    // bool AND
+    if (std::holds_alternative<bool>(a) &&
+        std::holds_alternative<bool>(b)) {
+        op_stack.push_back(std::get<bool>(a) && std::get<bool>(b));
+        return;
+    }
+
+    // int AND (bitwise)
+    if (std::holds_alternative<int>(a) &&
+        std::holds_alternative<int>(b)) {
+        op_stack.push_back(std::get<int>(a) & std::get<int>(b));
+        return;
+    }
+
+    throw TypeMismatch("and type mismatch");
+}
+
+void or_operation() {
+    if (op_stack.size() < 2) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value b = op_stack.back(); op_stack.pop_back();
+    Value a = op_stack.back(); op_stack.pop_back();
+
+    // bool OR
+    if (std::holds_alternative<bool>(a) &&
+        std::holds_alternative<bool>(b)) {
+        op_stack.push_back(std::get<bool>(a) || std::get<bool>(b));
+        return;
+    }
+
+    // int OR (bitwise)
+    if (std::holds_alternative<int>(a) &&
+        std::holds_alternative<int>(b)) {
+        op_stack.push_back(std::get<int>(a) | std::get<int>(b));
+        return;
+    }
+
+    throw TypeMismatch("or type mismatch");
+}
+
+void not_operation() {
+    if (op_stack.empty()) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value v = op_stack.back();
+    op_stack.pop_back();
+
+    // bool NOT
+    if (std::holds_alternative<bool>(v)) {
+        op_stack.push_back(!std::get<bool>(v));
+        return;
+    }
+
+    // int NOT (bitwise)
+    if (std::holds_alternative<int>(v)) {
+        op_stack.push_back(~std::get<int>(v));
+        return;
+    }
+
+    throw TypeMismatch("not type mismatch");
+}
+
+void true_operation() {
+    op_stack.push_back(true);
+}
+
+void false_operation() {
+    op_stack.push_back(false);
+}
+
 
 
 

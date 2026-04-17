@@ -57,6 +57,7 @@ add_executable(runTests
     tests/testArithmetic.cpp
     tests/testDictionary.cpp
     tests/testStrings.cpp
+    tests/testBooleanAndBitwise.cpp
 )
 
 target_link_libraries(runTests
