@@ -7,7 +7,9 @@ extern std::vector<Value> op_stack;
 extern std::vector<PSDict*> dict_stack;
 extern void reset();
 
-// ---------- Dictionary Tests ----------
+// ================================================
+//  Dictionary Operation Tests
+// ================================================
 
 TEST(DictionaryOps, DictCreatesEmptyDictionary) {
     reset();

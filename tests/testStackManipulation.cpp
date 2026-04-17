@@ -9,7 +9,10 @@ extern void init_interpreter();
 
 extern void reset();
 
-// ---------- Stack Manipulation Tests ----------
+
+// ================================================
+//  Stack Manipulation Tests
+// ================================================
 
 TEST(StackOps, ExchBasic) {
     reset();
@@ -58,7 +61,7 @@ TEST(StackOps, CopyTopN) {
     process_input("1");
     process_input("2");
     process_input("3");
-    process_input("2");   // n
+    process_input("2");   
     process_input("copy");
 
     ASSERT_EQ(op_stack.size(), 5);
@@ -75,7 +78,7 @@ TEST(StackOps, CopyInvalidN) {
 
     process_input("1");
     process_input("2");
-    process_input("5"); // too big
+    process_input("5"); 
 
     EXPECT_THROW(process_input("copy"), TypeMismatch);
 }

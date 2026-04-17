@@ -25,6 +25,7 @@ using ParserFunc = Value(*)(const std::string&);
 
 Value process_boolean(const std::string&);
 Value process_number(const std::string&);
+Value process_string(const std::string&);
 Value process_name_constant(const std::string&);
 Value process_code_block(const std::string&);
 Value process_constants(const std::string&);

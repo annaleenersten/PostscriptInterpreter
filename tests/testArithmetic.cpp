@@ -9,7 +9,9 @@ extern void init_interpreter();
 
 extern void reset();
 
-// ---------- Arithmetic Tests ----------
+// ================================================
+//  Arithmetic Operation Tests
+// ================================================
 
 TEST(Arithmetic, AddIntegers) {
     op_stack.push_back(2);

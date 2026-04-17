@@ -59,6 +59,13 @@ Value process_number(const std::string& input) {
     }
 }
 
+Value process_string(const std::string& input) {
+    if (input.size() >= 2 && input.front() == '(' && input.back() == ')') {
+        return input.substr(1, input.size() - 2); // remove parentheses
+    }
+    throw ParseFailed("Not a string");
+}
+
 // Name constant parser
 Value process_name_constant(const std::string& input) {
     if (!input.empty() && input[0] == '/') {
@@ -91,6 +98,7 @@ using ParserFunc = Value(*)(const std::string&);
 std::vector<ParserFunc> PARSERS = {
     process_boolean,
     process_number,
+    process_string,
     process_name_constant,
     process_code_block
 };

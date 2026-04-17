@@ -7,14 +7,23 @@ extern std::vector<Value> op_stack;
 extern std::vector<PSDict*> dict_stack;
 extern void init_interpreter();
 
-// ---------- Helper to reset state ----------
+
+// ================================================
+//  Parser Tests
+// ================================================
+
+
+// Helper to reset state
 void reset() {
     op_stack.clear();
     dict_stack.clear();
     init_interpreter();
 }
 
-// ---------- Boolean Parsing Tests ----------
+
+// ================================================
+//  Booleans
+// ================================================
 
 TEST(BooleanParsing, ParseTrue) {
     reset();
@@ -33,7 +42,10 @@ TEST(BooleanParsing, ParseInvalid) {
     EXPECT_THROW(process_boolean("something"), ParseFailed);
 }
 
-// ---------- Number Parsing Tests ----------
+
+// ================================================
+//  Numbers
+// ================================================
 
 TEST(NumberParsing, ParseInteger) {
     Value v = process_number("42");
@@ -49,7 +61,10 @@ TEST(NumberParsing, ParseInvalidNumber) {
     EXPECT_THROW(process_number("abc"), ParseFailed);
 }
 
-// ---------- Name Constant Parsing Tests ----------
+
+// ================================================
+//  Name Constants
+// ================================================
 
 TEST(NameConstantParsing, ParseValidNameConstant) {
     Value v = process_name_constant("/x");
@@ -60,7 +75,31 @@ TEST(NameConstantParsing, ParseInvalidNameConstant) {
     EXPECT_THROW(process_name_constant("x"), ParseFailed);
 }
 
-// ---------- Code Block Parsing Tests ----------
+
+// ================================================
+//  Strings
+// ================================================
+
+TEST(StringParsing, ParseSimpleString) {
+    Value v = process_string("(hello)");
+    EXPECT_EQ(std::get<std::string>(v), "hello");
+}
+
+TEST(StringParsing, ParseEmptyString) {
+    Value v = process_string("()");
+    EXPECT_EQ(std::get<std::string>(v), "");
+}
+
+TEST(StringParsing, ParseInvalidStringThrows) {
+    EXPECT_THROW(process_string("hello"), ParseFailed);
+    EXPECT_THROW(process_string("(hello"), ParseFailed);
+    EXPECT_THROW(process_string("hello)"), ParseFailed);
+}
+
+
+// ================================================
+//  Code Blocks
+// ================================================
 
 TEST(CodeBlockParsing, ParseCodeBlockMultipleTokens) {
     Value v = process_code_block("{ 1 add 2 sub }");
@@ -79,7 +118,10 @@ TEST(CodeBlockParsing, ParseCodeBlock) {
     EXPECT_EQ(vec.size(), 2);
 }
 
-// ---------- Dispatcher Tests ----------
+
+// ================================================
+//  Process Constants 
+// ================================================
 
 TEST(ParserDispatch, ProcessConstantsBoolean) {
     Value v = process_constants("true");
@@ -99,6 +141,11 @@ TEST(ParserDispatch, ProcessConstantsNumber) {
 TEST(ParserDispatch, ProcessConstantsDouble) {
     Value v = process_constants("2.5");
     EXPECT_DOUBLE_EQ(std::get<double>(v), 2.5);
+}
+
+TEST(ParserDispatch, ProcessConstantsString) {
+    Value v = process_constants("(hello)");
+    EXPECT_EQ(std::get<std::string>(v), "hello");
 }
 
 TEST(ParserDispatch, ProcessConstantsName) {

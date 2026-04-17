@@ -12,6 +12,7 @@ void init_interpreter() {
     dict_stack.push_back(new PSDict(50));
     auto& dictionary = dict_stack.back()->dict;
 
+    // Stack manipulation
     dictionary["exch"]   = std::function<void()>(exch_operation);
     dictionary["pop"]    = std::function<void()>(pop_operation);
     dictionary["copy"]   = std::function<void()>(copy_operation);
@@ -19,6 +20,7 @@ void init_interpreter() {
     dictionary["clear"]  = std::function<void()>(clear_operation);
     dictionary["count"]  = std::function<void()>(count_operation);
 
+    // Arithmetic
     dictionary["add"]    = std::function<void()>(add_operation);
     dictionary["sub"]    = std::function<void()>(sub_operation);
     dictionary["mul"]    = std::function<void()>(mul_operation);
@@ -33,14 +35,46 @@ void init_interpreter() {
     dictionary["round"]  = std::function<void()>(round_operation);
     dictionary["sqrt"]   = std::function<void()>(sqrt_operation);
 
+    // Dictionary
     dictionary["dict"]      = std::function<void()>(dict_operation);
     dictionary["length"]    = std::function<void()>(length_operation);
     dictionary["maxlength"] = std::function<void()>(maxlength_operation);
     dictionary["begin"]     = std::function<void()>(begin_operation);
     dictionary["end"]       = std::function<void()>(end_operation);
+    dictionary["def"]       = std::function<void()>(def_operation);
 
-    dictionary["def"]    = std::function<void()>(def_operation);
-    dictionary["="]      = std::function<void()>(pop_print_operation);
+    // Strings
+    dictionary["strlen"]  = std::function<void()>(string_length_operation); //length
+    dictionary["get"]           = std::function<void()>(get_string_operation);
+    dictionary["getinterval"]   = std::function<void()>(getinterval_operation);
+    dictionary["putinterval"]   = std::function<void()>(putinterval_operation);
+
+    // // Boolean and Bitwise
+    // dictionary["eq"]     = std::function<void()>(eq_operation);
+    // dictionary["ne"]     = std::function<void()>(ne_operation);
+    // dictionary["ge"]     = std::function<void()>(ge_operation);
+    // dictionary["gt"]     = std::function<void()>(gt_operation);
+    // dictionary["le"]     = std::function<void()>(le_operation);
+    // dictionary["lt"]     = std::function<void()>(lt_operation);
+
+    // dictionary["and"]    = std::function<void()>(and_operation);
+    // dictionary["or"]     = std::function<void()>(or_operation);
+    // dictionary["not"]    = std::function<void()>(not_operation);
+
+    // dictionary["true"]   = std::function<void()>(true_operation);
+    // dictionary["false"]  = std::function<void()>(false_operation);
+
+    // // Flow control
+    // dictionary["if"]     = std::function<void()>(if_operation);
+    // dictionary["ifelse"] = std::function<void()>(ifelse_operation);
+    // dictionary["for"]    = std::function<void()>(for_operation);
+    // dictionary["repeat"] = std::function<void()>(repeat_operation);
+    // dictionary["quit"]   = std::function<void()>(quit_operation);
+
+    // // Input and Output
+    // dictionary["="]    = std::function<void()>(pop_print_operation); 
+    // dictionary["print"]      = std::function<void()>(print_operation);
+    // dictionary["=="]     = std::function<void()>(double_equals_operation);
 
 }
 

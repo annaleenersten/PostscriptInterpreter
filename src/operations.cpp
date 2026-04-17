@@ -3,6 +3,11 @@
 #include <iostream>
 #include <cmath>
 
+
+// ================================================
+//  Stack Manipulation Operations
+// ================================================
+
 void exch_operation() {
     if (op_stack.size() < 2) {
         throw TypeMismatch("Not enough operands for exch");
@@ -64,8 +69,9 @@ void count_operation() {
 }
 
 
-
-
+// ================================================
+//  Arithmetic operations
+// ================================================
 
 double to_double(const Value& v) {
     if (std::holds_alternative<int>(v)) return std::get<int>(v);
@@ -247,11 +253,9 @@ void sqrt_operation() {
 }
 
 
-
-
-
-
-
+// ================================================
+//  Dictionary operations
+// ================================================
 
 void dict_operation() {
     Value v = op_stack.back();
@@ -329,6 +333,111 @@ void def_operation() {
 
     dict_stack.back()->dict[key] = value;
 }
+
+
+// ================================================
+//  String operations
+// ================================================
+
+void string_length_operation() {
+    if (op_stack.empty()) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value v = op_stack.back();
+    op_stack.pop_back();
+
+    if (!std::holds_alternative<std::string>(v)) {
+        throw TypeMismatch("length expects a string");
+    }
+
+    const std::string& s = std::get<std::string>(v);
+    op_stack.push_back((int)s.size());
+}
+
+void get_string_operation() {
+    if (op_stack.size() < 2) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value indexVal = op_stack.back(); op_stack.pop_back();
+    Value strVal   = op_stack.back(); op_stack.pop_back();
+
+    if (!std::holds_alternative<int>(indexVal) ||
+        !std::holds_alternative<std::string>(strVal)) {
+        throw TypeMismatch("get expects (string, int)");
+    }
+
+    int index = std::get<int>(indexVal);
+    const std::string& s = std::get<std::string>(strVal);
+
+    if (index < 0 || index >= (int)s.size()) {
+        throw std::out_of_range("index out of bounds");
+    }
+
+    op_stack.push_back((int)s[index]);
+}
+
+void getinterval_operation() {
+    if (op_stack.size() < 3) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value countVal = op_stack.back(); op_stack.pop_back();
+    Value indexVal = op_stack.back(); op_stack.pop_back();
+    Value strVal   = op_stack.back(); op_stack.pop_back();
+
+    if (!std::holds_alternative<int>(countVal) ||
+        !std::holds_alternative<int>(indexVal) ||
+        !std::holds_alternative<std::string>(strVal)) {
+        throw TypeMismatch("getinterval expects (string, int, int)");
+    }
+
+    int count = std::get<int>(countVal);
+    int index = std::get<int>(indexVal);
+    const std::string& s = std::get<std::string>(strVal);
+
+    if (index < 0 || count < 0 || index + count > (int)s.size()) {
+        throw std::out_of_range("invalid substring range");
+    }
+
+    op_stack.push_back(s.substr(index, count));
+}
+
+void putinterval_operation() {
+    if (op_stack.size() < 3) {
+        throw std::runtime_error("stack underflow");
+    }
+
+    Value srcVal    = op_stack.back(); op_stack.pop_back();
+    Value indexVal  = op_stack.back(); op_stack.pop_back();
+    Value targetVal = op_stack.back(); op_stack.pop_back();
+
+    if (!std::holds_alternative<std::string>(srcVal) ||
+        !std::holds_alternative<int>(indexVal) ||
+        !std::holds_alternative<std::string>(targetVal)) {
+        throw TypeMismatch("putinterval expects (string, int, string)");
+    }
+
+    std::string src    = std::get<std::string>(srcVal);
+    int index          = std::get<int>(indexVal);
+    std::string target = std::get<std::string>(targetVal);
+
+    if (index < 0 || index + (int)src.size() > (int)target.size()) {
+        throw std::out_of_range("putinterval out of bounds");
+    }
+
+    target.replace(index, src.size(), src);
+
+    op_stack.push_back(target);
+}
+
+
+
+
+// ================================================
+//  INPUT/OUTPUT operations
+// ================================================
 
 void pop_print_operation() {
     if (!op_stack.empty()) {

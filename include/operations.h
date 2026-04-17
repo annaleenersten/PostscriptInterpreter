@@ -30,5 +30,33 @@ void length_operation();
 void maxlength_operation();
 void def_operation();
 
-// Output
+// Strings
+void string_length_operation();
+void get_string_operation();
+void getinterval_operation();
+void putinterval_operation();
+
+// Boolean and Bitwise
+void eq_operation();
+void ne_operation();
+void ge_operation();
+void gt_operation();
+void le_operation();
+void lt_operation();
+void and_operation();
+void or_operation();
+void not_operation();
+void true_operation();
+void false_operation();
+
+// Flow control
+void if_operation();
+void ifelse_operation();
+void for_operation();
+void repeat_operation();
+void quit_operation();
+
+// Input and Output
 void pop_print_operation();
+void print_operation();     
+void double_equals_operation();
