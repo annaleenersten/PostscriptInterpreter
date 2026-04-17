@@ -55,6 +55,7 @@ add_executable(runTests
     tests/test.cpp
     tests/testStackManipulation.cpp
     tests/testArithmetic.cpp
+    tests/testDictionary.cpp
 )
 
 target_link_libraries(runTests

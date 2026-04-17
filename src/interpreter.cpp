@@ -5,11 +5,12 @@
 #include <stdexcept>
 
 std::vector<Value> op_stack;
-std::vector<PSDict> dict_stack;
+std::vector<PSDict*> dict_stack;
 
 void init_interpreter() {
-    dict_stack.push_back(PSDict());
-    auto& dictionary = dict_stack.back().dict;
+    dict_stack.clear();
+    dict_stack.push_back(new PSDict());
+    auto& dictionary = dict_stack.back()->dict;
 
     dictionary["exch"]   = std::function<void()>(exch_operation);
     dictionary["pop"]    = std::function<void()>(pop_operation);
@@ -32,8 +33,14 @@ void init_interpreter() {
     dictionary["round"]  = std::function<void()>(round_operation);
     dictionary["sqrt"]   = std::function<void()>(sqrt_operation);
 
-    dictionary["="]      = std::function<void()>(pop_print_operation);
+    dictionary["dict"]      = std::function<void()>(dict_operation);
+    dictionary["length"]    = std::function<void()>(length_operation);
+    dictionary["maxlength"] = std::function<void()>(maxlength_operation);
+    dictionary["begin"]     = std::function<void()>(begin_operation);
+    dictionary["end"]       = std::function<void()>(end_operation);
+
     dictionary["def"]    = std::function<void()>(def_operation);
+     dictionary["="]      = std::function<void()>(pop_print_operation);
 
 }
 
@@ -41,51 +48,98 @@ void init_interpreter() {
 void lookup_in_dictionary(const std::string& input) {
     for (auto it = dict_stack.rbegin(); it != dict_stack.rend(); ++it) {
 
-        try {
-            Value value = it->get(input); 
+        PSDict* dict = *it;
 
-            if (std::holds_alternative<std::function<void()>>(value)) {
-                std::get<std::function<void()>>(value)();
-            }
-            else if (std::holds_alternative<std::vector<std::string>>(value)) {
-                auto code = std::get<std::vector<std::string>>(value);
-                for (const auto& token : code) {
-                    process_input(token);
-                }
-            }
-            else {
-                op_stack.push_back(value);
-            }
-
-            return;
-        }
-        catch (const ParseFailed&) {
+        auto found = dict->dict.find(input);
+        if (found == dict->dict.end()) {
             continue;
         }
+
+        Value value = found->second;
+
+        if (std::holds_alternative<std::function<void()>>(value)) {
+            std::get<std::function<void()>>(value)();
+        }
+        else if (std::holds_alternative<std::vector<std::string>>(value)) {
+            auto code = std::get<std::vector<std::string>>(value);
+            for (const auto& token : code) {
+                process_input(token);
+            }
+        }
+        else {
+            op_stack.push_back(value);
+        }
+
+        return;
     }
 
     throw ParseFailed("Could not find " + input);
 }
 
+// void process_input(const std::string& input) {
+//     // 1. Try parsing literal
+//     try {
+//         Value v = process_constants(input);
+//         op_stack.push_back(v);
+//         return;
+//     }
+//     catch (ParseFailed&) {
+//         // not a literal → continue
+//     }
+
+//     // 2. Try dictionary
+//     try{
+//         lookup_in_dictionary(input);
+//     }
+//     catch (const ParseFailed&) {
+//         // 3. If still not resolved → error point
+//         throw TypeMismatch("Undefined token: " + input);
+//     }
+
+    
+// }
+
+// void process_input(const std::string& input) {
+//     // 1. Try literal
+//     try {
+//         Value v = process_constants(input);
+//         op_stack.push_back(v);
+//         return;
+//     }
+//     catch (ParseFailed&) {
+//         // not a literal → continue
+//     }
+
+//     // 2. Try dictionary
+//     try {
+//         lookup_in_dictionary(input);
+//         return;
+//     }
+//     catch (...) {
+//         // ignore and fall through
+//     }
+
+//     // 3. Final failure
+//     throw TypeMismatch("Undefined token: " + input);
+// }
+
 void process_input(const std::string& input) {
-    // 1. Try parsing literal
     try {
         Value v = process_constants(input);
         op_stack.push_back(v);
         return;
     }
     catch (ParseFailed&) {
-        // not a literal → continue
+        // not a literal
     }
 
-    // 2. Try dictionary
-    try{
+    try {
         lookup_in_dictionary(input);
+        return;
     }
     catch (const ParseFailed&) {
-        // 3. If still not resolved → error point
-        throw TypeMismatch("Undefined token: " + input);
+        // not found anywhere
     }
 
-    
+    throw TypeMismatch("Undefined token: " + input);
 }

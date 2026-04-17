@@ -22,13 +22,13 @@ void floor_operation();
 void round_operation();
 void sqrt_operation();
 
-// Definition
-void def_operation();
-
 // Dictionary
 void dict_operation();
 void begin_operation();
 void end_operation();
+void length_operation();
+void maxlength_operation();
+void def_operation();
 
 // Output
 void pop_print_operation();

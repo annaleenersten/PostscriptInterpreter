@@ -8,7 +8,16 @@ void PSDict::set_parent(PSDict* p) {
 }
 
 bool PSDict::contains(const std::string& key) const {
-    return dict.find(key) != dict.end();
+    const PSDict* current = this;
+
+    while (current != nullptr) {
+        if (current->dict.find(key) != current->dict.end()) {
+            return true;
+        }
+        current = current->parent;
+    }
+
+    return false;
 }
 
 Value PSDict::get(const std::string& key) const {
@@ -22,5 +31,5 @@ Value PSDict::get(const std::string& key) const {
         current = current->parent;
     }
 
-    throw ParseFailed("Could not find " + key);
+    throw std::out_of_range("not found");
 }

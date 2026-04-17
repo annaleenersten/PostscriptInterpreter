@@ -253,6 +253,95 @@ void sqrt_operation() {
 
 
 
+void dict_operation() {
+    Value v = op_stack.back();
+    op_stack.pop_back();
+
+    int size = std::get<int>(v);
+
+    PSDict* d = new PSDict();
+    d->dict.reserve(size);
+
+    op_stack.push_back(d);   
+}
+
+void length_operation() {
+    if (op_stack.empty()) {
+        throw TypeMismatch("Not enough operands for length");
+    }
+
+    Value v = op_stack.back();
+    op_stack.pop_back();
+
+    if (!std::holds_alternative<PSDict*>(v)) {
+        throw TypeMismatch("length expects a dict");
+    }
+
+    PSDict* d = std::get<PSDict*>(v);
+
+    op_stack.push_back((int)d->dict.size());
+}
+
+void maxlength_operation() {
+    if (op_stack.empty()) {
+        throw TypeMismatch("Not enough operands for maxlength");
+    }
+
+    Value v = op_stack.back();
+    op_stack.pop_back();
+
+    if (!std::holds_alternative<PSDict*>(v)) {
+        throw TypeMismatch("maxlength expects a dict");
+    }
+
+    PSDict* d = std::get<PSDict*>(v);
+
+    op_stack.push_back((int)d->dict.size());
+}
+
+void begin_operation() {
+    Value v = op_stack.back();
+    op_stack.pop_back();
+
+    PSDict* d = std::get<PSDict*>(v);
+
+    dict_stack.push_back(d);
+}
+
+void end_operation() {
+    if (dict_stack.size() <= 1)
+        throw TypeMismatch("Cannot pop base dictionary");
+
+    dict_stack.pop_back();
+}
+
+void def_operation() {
+    if (op_stack.size() < 2) {
+        throw TypeMismatch("Not enough operands for def");
+    }
+
+    Value value = op_stack.back(); op_stack.pop_back();
+    Value keyVal = op_stack.back(); op_stack.pop_back();
+
+    if (!std::holds_alternative<std::string>(keyVal)) {
+        throw TypeMismatch("Key must be string");
+    }
+
+    std::string key = std::get<std::string>(keyVal);
+
+    if (key.empty() || key[0] != '/') {
+        throw TypeMismatch("Key must start with '/'");
+    }
+
+    key = key.substr(1);
+
+    dict_stack.back()->dict[key] = value;
+}
+
+
+
+
+
 void pop_print_operation() {
     if (!op_stack.empty()) {
         Value v = op_stack.back();
@@ -265,27 +354,3 @@ void pop_print_operation() {
         throw TypeMismatch("Stack is empty");
     }
 }
-
-void def_operation() {
-    if (op_stack.size() < 2) {
-        throw TypeMismatch("Not enough operands for def");
-    }
-
-    Value value = op_stack.back(); op_stack.pop_back();
-    Value keyVal = op_stack.back(); op_stack.pop_back();
-
-    if (!std::holds_alternative<std::string>(keyVal)) {
-        throw TypeMismatch("Key must be a string");
-    }
-
-    std::string key = std::get<std::string>(keyVal);
-
-    if (key.empty() || key[0] != '/') {
-        throw TypeMismatch("Key must start with '/'");
-    }
-
-    key = key.substr(1);  // remove '/'
-
-    dict_stack.back().dict[key] = value;
-}
-

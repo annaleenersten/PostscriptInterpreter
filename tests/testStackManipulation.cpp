@@ -4,7 +4,7 @@
 
 extern void process_input(const std::string& input);
 extern std::vector<Value> op_stack;
-extern std::vector<PSDict> dict_stack;
+extern std::vector<PSDict*> dict_stack;
 extern void init_interpreter();
 
 extern void reset();
