@@ -7,18 +7,17 @@
 #include <stdexcept>
 #include <sstream>
 #include <algorithm>
+#include <value.h>
 
 
-// ---------- EXCEPTION IMPLEMENTATIONS ----------
-ParseFailed::ParseFailed(const std::string& msg)
-    : message(msg) {}
+// ---------- CUSTOM EXCEPTIONS ----------
+ParseFailed::ParseFailed(const std::string& msg) : message(msg) {}
 
 const char* ParseFailed::what() const noexcept {
     return message.c_str();
 }
 
-TypeMismatch::TypeMismatch(const std::string& msg)
-    : message(msg) {}
+TypeMismatch::TypeMismatch(const std::string& msg) : message(msg) {}
 
 const char* TypeMismatch::what() const noexcept {
     return message.c_str();
@@ -35,10 +34,15 @@ std::string to_lower(std::string str) {
 
 // Boolean parser
 Value process_boolean(const std::string& input) {
-    if (input == "true") return true;
-    if (input == "false") return false;
-
-    throw ParseFailed("can't parse input into boolean");
+    if (input == "true"){
+        return true;
+    }
+    else if (input == "false"){
+        return false;
+    } 
+    else{
+        throw ParseFailed("can't parse input into boolean");
+    }
 }
 
 // Number parser

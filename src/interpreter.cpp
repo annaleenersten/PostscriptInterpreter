@@ -9,7 +9,7 @@ std::vector<PSDict*> dict_stack;
 
 void init_interpreter() {
     dict_stack.clear();
-    dict_stack.push_back(new PSDict());
+    dict_stack.push_back(new PSDict(50));
     auto& dictionary = dict_stack.back()->dict;
 
     dictionary["exch"]   = std::function<void()>(exch_operation);
@@ -40,7 +40,7 @@ void init_interpreter() {
     dictionary["end"]       = std::function<void()>(end_operation);
 
     dictionary["def"]    = std::function<void()>(def_operation);
-     dictionary["="]      = std::function<void()>(pop_print_operation);
+    dictionary["="]      = std::function<void()>(pop_print_operation);
 
 }
 
@@ -75,53 +75,6 @@ void lookup_in_dictionary(const std::string& input) {
 
     throw ParseFailed("Could not find " + input);
 }
-
-// void process_input(const std::string& input) {
-//     // 1. Try parsing literal
-//     try {
-//         Value v = process_constants(input);
-//         op_stack.push_back(v);
-//         return;
-//     }
-//     catch (ParseFailed&) {
-//         // not a literal → continue
-//     }
-
-//     // 2. Try dictionary
-//     try{
-//         lookup_in_dictionary(input);
-//     }
-//     catch (const ParseFailed&) {
-//         // 3. If still not resolved → error point
-//         throw TypeMismatch("Undefined token: " + input);
-//     }
-
-    
-// }
-
-// void process_input(const std::string& input) {
-//     // 1. Try literal
-//     try {
-//         Value v = process_constants(input);
-//         op_stack.push_back(v);
-//         return;
-//     }
-//     catch (ParseFailed&) {
-//         // not a literal → continue
-//     }
-
-//     // 2. Try dictionary
-//     try {
-//         lookup_in_dictionary(input);
-//         return;
-//     }
-//     catch (...) {
-//         // ignore and fall through
-//     }
-
-//     // 3. Final failure
-//     throw TypeMismatch("Undefined token: " + input);
-// }
 
 void process_input(const std::string& input) {
     try {

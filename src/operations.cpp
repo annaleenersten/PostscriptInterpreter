@@ -259,60 +259,52 @@ void dict_operation() {
 
     int size = std::get<int>(v);
 
-    PSDict* d = new PSDict();
+    PSDict* d = new PSDict(size);
     d->dict.reserve(size);
 
     op_stack.push_back(d);   
 }
 
 void length_operation() {
-    if (op_stack.empty()) {
-        throw TypeMismatch("Not enough operands for length");
+    if (dict_stack.empty()) {
+        throw std::runtime_error("No active dictionary");
     }
 
-    Value v = op_stack.back();
-    op_stack.pop_back();
-
-    if (!std::holds_alternative<PSDict*>(v)) {
-        throw TypeMismatch("length expects a dict");
-    }
-
-    PSDict* d = std::get<PSDict*>(v);
-
+    PSDict* d = dict_stack.back();
     op_stack.push_back((int)d->dict.size());
 }
 
 void maxlength_operation() {
-    if (op_stack.empty()) {
-        throw TypeMismatch("Not enough operands for maxlength");
-    }
-
     Value v = op_stack.back();
     op_stack.pop_back();
 
     if (!std::holds_alternative<PSDict*>(v)) {
-        throw TypeMismatch("maxlength expects a dict");
+        throw std::runtime_error("maxlength expects a dict");
     }
 
     PSDict* d = std::get<PSDict*>(v);
-
-    op_stack.push_back((int)d->dict.size());
+    op_stack.push_back(d->capacity);
 }
 
 void begin_operation() {
     Value v = op_stack.back();
     op_stack.pop_back();
 
-    PSDict* d = std::get<PSDict*>(v);
+    if (!std::holds_alternative<PSDict*>(v)) {
+        throw std::runtime_error("begin expects dict");
+    }
 
-    dict_stack.push_back(d);
+    dict_stack.push_back(std::get<PSDict*>(v));
+    std::cout << "BEGIN dict_stack size = " << dict_stack.size() << "\n";
 }
 
 void end_operation() {
-    if (dict_stack.size() <= 1)
-        throw TypeMismatch("Cannot pop base dictionary");
+    if (dict_stack.empty()) {
+        throw std::runtime_error("dict stack underflow");
+    }
 
     dict_stack.pop_back();
+    std::cout << "END dict_stack size = " << dict_stack.size() << "\n";
 }
 
 void def_operation() {
@@ -337,10 +329,6 @@ void def_operation() {
 
     dict_stack.back()->dict[key] = value;
 }
-
-
-
-
 
 void pop_print_operation() {
     if (!op_stack.empty()) {

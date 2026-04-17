@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 
+bool STATIC_SCOPING = false;
+
 void print_op_stack() {
     std::cout << "OP_STACK = [ ";
 

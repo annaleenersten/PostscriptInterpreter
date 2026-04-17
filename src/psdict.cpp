@@ -3,6 +3,10 @@
 #include <iostream>
 
 
+PSDict::PSDict(int cap) {
+    capacity = cap;
+}
+
 void PSDict::set_parent(PSDict* p) {
     parent = p;
 }

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <exception>
 #include "value.h"
 
 class ParseFailed : public std::exception {
