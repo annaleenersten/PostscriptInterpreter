@@ -46,7 +46,7 @@ std::vector<std::string> tokenize(const std::string& input) {
             continue;
         }
 
-        // Inside a block → do NOT split
+        // Inside a block
         if (in_block) {
             current += c;
             continue;
@@ -72,14 +72,28 @@ std::vector<std::string> tokenize(const std::string& input) {
 }
 
 void repl() {
-    
+    std::string input;
+    std::string buffer;
+    int brace_depth = 0;
+
     while (true) {
         std::cout << "REPL> ";
-        std::string input;
         std::getline(std::cin, input);
 
+        buffer += input + " ";
+
+        for (char c : input) {
+            if (c == '{') brace_depth++;
+            if (c == '}') brace_depth--;
+        }
+
+        // Only process when full block is complete OR no block
+        if (brace_depth > 0) {
+            continue; // keep collecting lines
+        }
+
         try {
-            std::vector<std::string> tokens = tokenize(input);
+            std::vector<std::string> tokens = tokenize(buffer);
 
             for (const auto& token : tokens) {
                 if (token == "quit") return;
@@ -90,6 +104,7 @@ void repl() {
             std::cout << "Error: " << e.what() << std::endl;
         }
 
+        buffer.clear();
         print_op_stack();
     }
 }
