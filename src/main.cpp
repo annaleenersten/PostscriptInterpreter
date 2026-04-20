@@ -2,6 +2,11 @@
 #include <iostream>
 #include <sstream>
 
+
+/*
+ * Prints the current operand stack (OP_STACK).
+ * Each value is printed in order from bottom to top.
+ */
 void print_op_stack() {
     std::cout << "OP_STACK = [ ";
 
@@ -12,6 +17,15 @@ void print_op_stack() {
 
     std::cout << "]\n";
 }
+
+/*
+ * Prints the entire dictionary stack.
+ * Each dictionary level is shown with:
+ *  - its level index
+ *  - whether it is the top of the stack
+ *  - its stored keys
+ *  - whether it has a parent dictionary
+ */
 
 void print_dict_stack() {
     std::cout << "\n===== DICT STACK =====\n";
@@ -44,6 +58,18 @@ void print_dict_stack() {
 
     std::cout << "======================\n\n";
 }
+
+/*
+ * Tokenizes an input string into interpreter tokens.
+ *
+ * Rules:
+ *  - Whitespace separates tokens outside of code blocks
+ *  - Everything inside { ... } is treated as a single token
+ *  - Nested braces are supported using brace_depth tracking
+ *
+ * Returns:
+ *  Vector of parsed string tokens
+ */
 
 std::vector<std::string> tokenize(const std::string& input) {
     std::vector<std::string> tokens;
@@ -101,6 +127,17 @@ std::vector<std::string> tokenize(const std::string& input) {
     return tokens;
 }
 
+/*
+ * Read–Eval–Print Loop (REPL) for the interpreter.
+ *
+ * Behavior:
+ *  - Reads user input line by line
+ *  - Supports multi-line code blocks using { ... }
+ *  - Buffers input until all braces are closed
+ *  - Tokenizes and processes input once complete
+ *  - Supports "quit" command to exit
+ *  - Prints operand stack after each evaluation
+ */
 void repl() {
     std::string input;
     std::string buffer;
@@ -136,10 +173,14 @@ void repl() {
 
         buffer.clear();
         print_op_stack();
-        print_dict_stack();
+        //print_dict_stack();
     }
 }
 
+/*
+ * Program entry point.
+ * Initializes interpreter state and starts the REPL.
+ */
 int main() {
     init_interpreter();
     repl();

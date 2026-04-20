@@ -4,10 +4,18 @@
 #include <cmath>
 
 
-// ================================================
-//  Stack Manipulation Operations
-// ================================================
+/*
+ * =================================================
+ * STACK MANIPULATION OPERATIONS
+ * =================================================
+ * These functions directly manipulate the operand stack (op_stack),
+ * which is the primary runtime data structure of the interpreter.
+ */
 
+/*
+ * Swaps the top two elements of the operand stack.
+ * Stack effect: (a b -- b a)
+ */
 void exch_operation() {
     if (op_stack.size() < 2) {
         throw TypeMismatch("Not enough operands for exch");
@@ -20,6 +28,9 @@ void exch_operation() {
     op_stack.push_back(op2);
 }
 
+/*
+ * Removes the top element of the stack.
+ */
 void pop_operation() {
     if (op_stack.empty()) {
         throw TypeMismatch("Stack is empty");
@@ -28,6 +39,10 @@ void pop_operation() {
     op_stack.pop_back();
 }
 
+/*
+ * Copies the top N elements of the stack.
+ * Stack effect: (... n -- ... [top n elements duplicated])
+ */
 void copy_operation() {
     if (op_stack.empty()) {
         throw TypeMismatch("Stack is empty");
@@ -52,6 +67,9 @@ void copy_operation() {
     }
 }
 
+/*
+ * Duplicates the top element of the stack.
+ */
 void dup_operation() {
     if (op_stack.empty()) {
         throw TypeMismatch("Stack is empty");
@@ -60,19 +78,33 @@ void dup_operation() {
     op_stack.push_back(op_stack.back());
 }
 
+/*
+ * Clears the entire operand stack.
+ */
 void clear_operation() {
     op_stack.clear();
 }
 
+/*
+ * Pushes the current stack size onto the stack.
+ */
 void count_operation() {
     op_stack.push_back(static_cast<int>(op_stack.size()));
 }
 
 
-// ================================================
-//  Arithmetic operations
-// ================================================
+/*
+ * =================================================
+ * ARITHMETIC OPERATIONS
+ * =================================================
+ * All arithmetic operations operate on numeric Values.
+ * Integers and doubles are both supported via to_double().
+ */
 
+/*
+ * Converts a Value to double.
+ * Used internally for unified arithmetic.
+ */
 double to_double(const Value& v) {
     if (std::holds_alternative<int>(v)){
         return std::get<int>(v);
@@ -83,6 +115,9 @@ double to_double(const Value& v) {
     throw TypeMismatch("Operand must be a number");
 }
 
+/*
+ * Addition: (a b -- a + b)
+ */
 void add_operation() {
     if (op_stack.size() < 2)
         throw TypeMismatch("Not enough operands for add");
@@ -98,6 +133,9 @@ void add_operation() {
         op_stack.push_back(result);
 }
 
+/*
+ * Subtraction: (a b -- a - b)
+ */
 void sub_operation() {
     if (op_stack.size() < 2)
         throw TypeMismatch("Not enough operands for sub");
@@ -113,6 +151,9 @@ void sub_operation() {
         op_stack.push_back(result);
 }
 
+/*
+ * Multiplication: (a b -- a * b)
+ */
 void mul_operation() {
     if (op_stack.size() < 2)
         throw TypeMismatch("Not enough operands for mul");
@@ -128,6 +169,9 @@ void mul_operation() {
         op_stack.push_back(result);
 }
 
+/*
+ * Division: (a b -- a / b)
+ */
 void div_operation() {
     if (op_stack.size() < 2)
         throw TypeMismatch("Not enough operands for div");
@@ -143,6 +187,9 @@ void div_operation() {
     op_stack.push_back(result);
 }
 
+/*
+ * Integer division: requires both operands to be ints.
+ */
 void idiv_operation() {
     if (op_stack.size() < 2)
         throw TypeMismatch("Not enough operands for idiv");
@@ -161,6 +208,9 @@ void idiv_operation() {
     op_stack.push_back(result);
 }
 
+/*
+ * Modulo operation for integers.
+ */
 void mod_operation() {
     if (op_stack.size() < 2)
         throw TypeMismatch("Not enough operands for mod");
@@ -179,6 +229,9 @@ void mod_operation() {
     op_stack.push_back(result);
 }
 
+/*
+ * Absolute value operation.
+ */
 void abs_operation() {
     if (op_stack.empty())
         throw TypeMismatch("Not enough operands for abs");
@@ -196,6 +249,9 @@ void abs_operation() {
     }
 }
 
+/*
+ * Negation operation.
+ */
 void neg_operation() {
     if (op_stack.empty())
         throw TypeMismatch("Not enough operands for neg");
@@ -213,6 +269,9 @@ void neg_operation() {
     }
 }
 
+/*
+ * Ceiling function.
+ */
 void ceiling_operation() {
     if (op_stack.empty())
         throw TypeMismatch("Not enough operands for ceiling");
@@ -222,6 +281,10 @@ void ceiling_operation() {
 
     op_stack.push_back((double)std::ceil(val));
 }
+
+/*
+ * Floor function.
+ */
 
 void floor_operation() {
     if (op_stack.empty())
@@ -233,6 +296,9 @@ void floor_operation() {
     op_stack.push_back((double)std::floor(val));
 }
 
+/*
+ * Round function.
+ */
 void round_operation() {
     if (op_stack.empty())
         throw TypeMismatch("Not enough operands for round");
@@ -243,6 +309,9 @@ void round_operation() {
     op_stack.push_back((double)std::round(val));
 }
 
+/*
+ * Square root (must be non-negative).
+ */
 void sqrt_operation() {
     if (op_stack.empty())
         throw TypeMismatch("Not enough operands for sqrt");
@@ -257,10 +326,16 @@ void sqrt_operation() {
 }
 
 
-// ================================================
-//  Dictionary operations
-// ================================================
+/*
+ * =================================================
+ * DICTIONARY OPERATIONS
+ * =================================================
+ * These functions manage scoped environments.
+ */
 
+/*
+ * Creates a new dictionary object.
+ */
 void dict_operation() {
     Value v = op_stack.back();
     op_stack.pop_back();
@@ -273,6 +348,9 @@ void dict_operation() {
     op_stack.push_back(d);   
 }
 
+/*
+ * Returns number of entries in current dictionary.
+ */
 void length_operation() {
     if (dict_stack.empty()) {
         throw std::runtime_error("No active dictionary");
@@ -282,6 +360,9 @@ void length_operation() {
     op_stack.push_back((int)d->dict.size());
 }
 
+/*
+ * Returns maximum capacity of a dictionary.
+ */
 void maxlength_operation() {
     Value v = op_stack.back();
     op_stack.pop_back();
@@ -294,6 +375,9 @@ void maxlength_operation() {
     op_stack.push_back(d->capacity);
 }
 
+/*
+ * Pushes dictionary onto dictionary stack (new scope).
+ */
 void begin_operation() {
     Value v = op_stack.back();
     op_stack.pop_back();
@@ -310,6 +394,9 @@ void begin_operation() {
     dict_stack.push_back(new_dict);
 }
 
+/*
+ * Pops current dictionary scope.
+ */
 void end_operation() {
     if (dict_stack.empty()) {
         throw std::runtime_error("dict stack underflow");
@@ -318,6 +405,9 @@ void end_operation() {
     dict_stack.pop_back();
 }
 
+/*
+ * Defines a variable or procedure in the current dictionary.
+ */
 void def_operation() {
     Value val = op_stack.back(); op_stack.pop_back();
     Value key = op_stack.back(); op_stack.pop_back();
@@ -347,10 +437,16 @@ void def_operation() {
 }
 
 
-// ================================================
-//  String operations
-// ================================================
+/*
+ * =================================================
+ * STRING OPERATIONS
+ * =================================================
+ * String indexing and manipulation utilities.
+ */
 
+/*
+ * Returns string length.
+ */
 void string_length_operation() {
     if (op_stack.empty()) {
         throw std::runtime_error("stack underflow");
@@ -367,6 +463,9 @@ void string_length_operation() {
     op_stack.push_back((int)s.size());
 }
 
+/*
+ * Returns character at index.
+ */
 void get_string_operation() {
     if (op_stack.size() < 2) {
         throw std::runtime_error("stack underflow");
@@ -390,6 +489,9 @@ void get_string_operation() {
     op_stack.push_back((int)s[index]);
 }
 
+/*
+ * Extract substring.
+ */
 void getinterval_operation() {
     if (op_stack.size() < 3) {
         throw std::runtime_error("stack underflow");
@@ -416,6 +518,9 @@ void getinterval_operation() {
     op_stack.push_back(s.substr(index, count));
 }
 
+/*
+ * Replaces part of a string.
+ */
 void putinterval_operation() {
     if (op_stack.size() < 3) {
         throw std::runtime_error("stack underflow");
@@ -444,10 +549,17 @@ void putinterval_operation() {
     op_stack.push_back(target);
 }
 
-// ================================================
-//  Boolean and Bitwise operations
-// ================================================
 
+/*
+ * =================================================
+ * BOOLEAN & BITWISE OPERATIONS
+ * =================================================
+ * Supports both logical (bool) and bitwise (int) forms.
+ */
+
+/*
+ * Equality comparison across types.
+ */
 void eq_operation() {
     if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
 
@@ -478,12 +590,18 @@ void eq_operation() {
     throw TypeMismatch("eq type mismatch");
 }
 
+/*
+ * Not-equal implemented using eq + negation.
+ */
 void ne_operation() {
     eq_operation();
     Value v = op_stack.back(); op_stack.pop_back();
     op_stack.push_back(!std::get<bool>(v));
 }
 
+/*
+ * Greater-than comparison.
+ */
 void gt_operation() {
     if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
 
@@ -507,6 +625,9 @@ void gt_operation() {
     throw TypeMismatch("gt type mismatch");
 }
 
+/*
+ * Greater-than-or-equal comparison.
+ */
 void ge_operation() {
     if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
 
@@ -528,6 +649,9 @@ void ge_operation() {
     throw TypeMismatch("ge type mismatch");
 }
 
+/*
+ * Less-than comparison.
+ */
 void lt_operation() {
     if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
 
@@ -549,6 +673,9 @@ void lt_operation() {
     throw TypeMismatch("lt type mismatch");
 }
 
+/*
+ * Less-than-or-equal comparison.
+ */
 void le_operation() {
     if (op_stack.size() < 2) throw std::runtime_error("stack underflow");
 
@@ -570,6 +697,9 @@ void le_operation() {
     throw TypeMismatch("le type mismatch");
 }
 
+/*
+ * Logical AND / bitwise AND.
+ */
 void and_operation() {
     if (op_stack.size() < 2) {
         throw std::runtime_error("stack underflow");
@@ -595,6 +725,9 @@ void and_operation() {
     throw TypeMismatch("and type mismatch");
 }
 
+/*
+ * Logical OR / bitwise OR.
+ */
 void or_operation() {
     if (op_stack.size() < 2) {
         throw std::runtime_error("stack underflow");
@@ -620,6 +753,9 @@ void or_operation() {
     throw TypeMismatch("or type mismatch");
 }
 
+/*
+ * Logical NOT / bitwise NOT.
+ */
 void not_operation() {
     if (op_stack.empty()) {
         throw std::runtime_error("stack underflow");
@@ -643,19 +779,31 @@ void not_operation() {
     throw TypeMismatch("not type mismatch");
 }
 
+/*
+ * Push boolean constant.
+ */
 void true_operation() {
     op_stack.push_back(true);
 }
 
+/*
+ * Push boolean constant.
+ */
 void false_operation() {
     op_stack.push_back(false);
 }
 
 
-// ================================================
-//  Flow Control operations
-// ================================================
+/*
+ * =================================================
+ * FLOW CONTROL OPERATIONS
+ * =================================================
+ * Implements PostScript-style execution control.
+ */
 
+/*
+ * Pops value from stack safely.
+ */
 Value pop() {
     if (op_stack.empty()) {
         throw std::runtime_error("stack underflow");
@@ -665,6 +813,9 @@ Value pop() {
     return v;
 }
 
+/*
+ * Conditional execution: if (cond) { code }
+ */
 void if_operation() {
     Value proc = pop();
     Value cond = pop();
@@ -685,6 +836,9 @@ void if_operation() {
     }
 }
 
+/*
+ * if-else branching.
+ */
 void ifelse_operation() {
     Value proc2 = pop();
     Value proc1 = pop();
@@ -708,6 +862,9 @@ void ifelse_operation() {
     }
 }
 
+/*
+ * Repeat execution N times.
+ */
 void repeat_operation() {
     Value proc = pop();
     Value n = pop();
@@ -730,6 +887,9 @@ void repeat_operation() {
     }
 }
 
+/*
+ * For-loop execution.
+ */
 void for_operation() {
     Value proc = pop();
     Value end = pop();
@@ -773,25 +933,23 @@ void for_operation() {
     }
 }
 
+/*
+ * Terminates interpreter execution.
+ */
 void quit_operation() {
     exit(0);
 }
 
 
-// ================================================
-//  INPUT/OUTPUT operations
-// ================================================
+/*
+ * =================================================
+ * INPUT / OUTPUT OPERATIONS
+ * =================================================
+ */
 
-Value pop_stack() {
-    if (op_stack.empty()) {
-        throw std::runtime_error("stack underflow");
-    }
-
-    Value v = op_stack.back();
-    op_stack.pop_back();
-    return v;
-}
-
+/*
+ * Pops and prints value.
+ */
 void pop_print_operation() {
     if (!op_stack.empty()) {
         Value v = op_stack.back();
@@ -805,8 +963,11 @@ void pop_print_operation() {
     }
 }
 
+/*
+ * Prints string
+ */
 void print_operation() {
-    Value v = pop_stack();
+    Value v = pop();
 
     if (!std::holds_alternative<std::string>(v)) {
         throw TypeMismatch("print expects a string");
@@ -815,6 +976,9 @@ void print_operation() {
     std::cout << std::get<std::string>(v);
 }
 
+/*
+ * Debug print
+ */
 void double_equals_operation() {
     if (op_stack.empty()) {
         throw TypeMismatch("Stack is empty");

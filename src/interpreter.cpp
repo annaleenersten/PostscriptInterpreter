@@ -4,11 +4,38 @@
 #include <functional>
 #include <stdexcept>
 
+
+/*
+ * Controls whether the interpreter uses static or dynamic scoping.
+ * - false: dynamic scoping (default behavior)
+ * - true: static scoping (uses defining environment for code blocks)
+ */
 bool STATIC_SCOPING = false;
 
+/*
+ * Operand stack:
+ * Holds all runtime values (integers, doubles, booleans, strings, etc.)
+ * Used by all stack-based operations.
+ */
 std::vector<Value> op_stack;
+
+/*
+ * Dictionary stack:
+ * Implements scoped environments.
+ * Each PSDict represents a scope (like a symbol table).
+ */
 std::vector<PSDict*> dict_stack;
 
+/*
+ * Initializes the interpreter state.
+ *
+ * Responsibilities:
+ *  - Clears any existing dictionary stack
+ *  - Creates a global dictionary (top-level scope)
+ *  - Registers all built-in operations as function entries
+ *
+ * All PostScript-like commands are mapped here.
+ */
 void init_interpreter() {
     dict_stack.clear();
     dict_stack.push_back(new PSDict(50));
@@ -77,6 +104,23 @@ void init_interpreter() {
     dictionary["=="]     = std::function<void()>(double_equals_operation);
 }
 
+
+/*
+ * Looks up a token in the dictionary stack (scoped environment).
+ *
+ * Search order:
+ *  - Top of stack → bottom (latest scope first)
+ *
+ * Behavior:
+ *  - If token is a function → execute it immediately
+ *  - If token is a code block → execute it (with optional static scoping)
+ *  - If token is a literal → push onto operand stack
+ *
+ * Throws:
+ *  - ParseFailed if token is not found in any scope
+ *  - TypeMismatch for unsupported value types
+ */
+
 void lookup_in_dictionary(const std::string& input) {
 
     for (auto it = dict_stack.rbegin(); it != dict_stack.rend(); ++it) {
@@ -131,12 +175,22 @@ void lookup_in_dictionary(const std::string& input) {
             return;
         }
 
-        throw std::runtime_error("Unsupported value type in lookup");
+        throw TypeMismatch("Unsupported value type in lookup");
     }
 
     throw ParseFailed("Could not find " + input);
 }
 
+/*
+ * Main interpreter dispatch function.
+ *
+ * Execution order:
+ *  1. Try parsing as a literal (number, string, boolean)
+ *  2. If not a literal, try dictionary lookup
+ *  3. If neither works, throw undefined token error
+ *
+ * This enforces a simple two-stage evaluation model.
+ */
 void process_input(const std::string& input) {
 
     // 1. FIRST: try constants (literals)
