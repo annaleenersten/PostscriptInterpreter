@@ -1006,7 +1006,8 @@ void pop_print_operation() {
  */
 void print_operation() {
     Value v = pop();
-    print_value(v);  
+    print_value(v); 
+    std::cout << std::endl; 
 }
 
 /*

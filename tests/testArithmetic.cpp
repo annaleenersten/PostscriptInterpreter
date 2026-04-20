@@ -134,3 +134,21 @@ TEST(Arithmetic, SquareRoot) {
 
     EXPECT_EQ(std::get<double>(op_stack.back()), 3.0);
 }
+
+TEST(Arithmetic, AddMixedTypes) {
+    reset();
+
+    op_stack.push_back(2);
+    op_stack.push_back(3.5);
+    process_input("add");
+
+    EXPECT_DOUBLE_EQ(std::get<double>(op_stack.back()), 5.5);
+}
+
+TEST(Arithmetic, AddUnderflow) {
+    reset();
+
+    op_stack.push_back(1);
+
+    EXPECT_THROW(process_input("add"), TypeMismatch);
+}

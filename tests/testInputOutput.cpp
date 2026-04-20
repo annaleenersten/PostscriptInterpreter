@@ -41,7 +41,7 @@ TEST(OutputOps, PrintNumber) {
     process_input("42");
     process_input("print");
 
-    EXPECT_EQ(cap.str(), "42");
+    EXPECT_EQ(cap.str(), "42\n");
 }
 
 TEST(OutputOps, PrintBoolean) {
@@ -51,7 +51,7 @@ TEST(OutputOps, PrintBoolean) {
     process_input("true");
     process_input("print");
 
-    EXPECT_EQ(cap.str(), "true");
+    EXPECT_EQ(cap.str(), "true\n");
 }
 
 TEST(OutputOps, PrintString) {
@@ -61,7 +61,7 @@ TEST(OutputOps, PrintString) {
     process_input("(hello)");
     process_input("print");
 
-    EXPECT_EQ(cap.str(), "hello");
+    EXPECT_EQ(cap.str(), "hello\n");
 }
 
 TEST(OutputOps, EqualsNumber) {
