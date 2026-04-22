@@ -1,42 +1,24 @@
-# build output
+# Build directories
 build/
-*.out
-app
+/build-*/
+cmake-build-*/
+
+# build output
+ps_interpreter
 runTests
 
-# Build directories
-/build/
-/build-*/
-/cmake-build-*/
-
-# CMake generated files
+# CMake files
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
 
-# Compiled binaries
-*.exe
-*.out
-*.app
-
-# Object files
+# Compiled files
 *.o
 *.obj
-*.so
-*.a
-*.dll
-*.dylib
-
-# Debug / logs
-*.log
-
-# IDE files 
-.vscode/
+*.exe
+*.out
 
 # OS files
 .DS_Store
 Thumbs.db
-
-# Testing artifacts
-Testing/

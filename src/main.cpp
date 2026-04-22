@@ -172,7 +172,9 @@ void repl() {
         }
 
         buffer.clear();
-        print_op_stack();
+
+        //options for debugging:
+        //print_op_stack();
         //print_dict_stack();
     }
 }
